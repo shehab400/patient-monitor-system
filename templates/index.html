@@ -60,34 +60,41 @@
                 .then(response => response.json())
                 .then(data => {
                     const tableBody = document.getElementById('data');
-                    tableBody.innerHTML = '';  // Clear existing data
                     data.forEach(entry => {
-                        const row = document.createElement('tr');
-                        const patientIdCell = document.createElement('td');
-                        const heartRateCell = document.createElement('td');
-                        const timestampCell = document.createElement('td');
-                        
-                        patientIdCell.textContent = entry.patient_id;
-                        heartRateCell.textContent = entry.heart_rate;
-                        timestampCell.textContent = entry.timestamp;
+                        let row = document.getElementById(`patient-${entry.patient_id}`);
+                        if (!row) {
+                            row = document.createElement('tr');
+                            row.id = `patient-${entry.patient_id}`;
 
-                        // Apply color based on heart rate value
-                        if (entry.heart_rate >= 60 && entry.heart_rate <= 80) {
-                            heartRateCell.classList.add('heart-rate-green');
+                            const patientIdCell = document.createElement('td');
+                            const heartRateCell = document.createElement('td');
+                            const timestampCell = document.createElement('td');
+
+                            patientIdCell.textContent = entry.patient_id;
+                            heartRateCell.textContent = entry.heart_rate;
+                            timestampCell.textContent = entry.timestamp;
+
+                            row.appendChild(patientIdCell);
+                            row.appendChild(heartRateCell);
+                            row.appendChild(timestampCell);
+
+                            tableBody.appendChild(row);
                         } else {
-                            heartRateCell.classList.add('heart-rate-red');
-                        }
+                            row.cells[1].textContent = entry.heart_rate;
+                            row.cells[2].textContent = entry.timestamp;
 
-                        row.appendChild(patientIdCell);
-                        row.appendChild(heartRateCell);
-                        row.appendChild(timestampCell);
-                        tableBody.appendChild(row);
+                            if (entry.heart_rate >= 60 && entry.heart_rate <= 80) {
+                                row.cells[1].className = 'heart-rate-green';
+                            } else {
+                                row.cells[1].className = 'heart-rate-red';
+                            }
+                        }
                     });
                 })
                 .catch(error => console.error('Error fetching heart rate data:', error));
         }
 
-        // Fetch data initially and then every 5 seconds
+        // Fetch data initially and then every second
         fetchAndUpdateData();
         setInterval(fetchAndUpdateData, 1000);
     </script>
