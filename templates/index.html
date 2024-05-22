@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Monitor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+        h1 {
+            text-align: center;
+            color: #ffffff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #444444;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #333333;
+        }
+        .heart-rate-green {
+            color: #00ff00;
+        }
+        .heart-rate-red {
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Patient Monitor</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Patient ID</th>
+                <th>Heart Rate</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody id="data">
+            <!-- Data will be inserted here dynamically -->
+        </tbody>
+    </table>
+
+    <script>
+        function fetchAndUpdateData() {
+            fetch('/heart_rate')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('data');
+                    tableBody.innerHTML = '';  // Clear existing data
+                    data.forEach(entry => {
+                        const row = document.createElement('tr');
+                        const patientIdCell = document.createElement('td');
+                        const heartRateCell = document.createElement('td');
+                        const timestampCell = document.createElement('td');
+                        
+                        patientIdCell.textContent = entry.patient_id;
+                        heartRateCell.textContent = entry.heart_rate;
+                        timestampCell.textContent = entry.timestamp;
+
+                        // Apply color based on heart rate value
+                        if (entry.heart_rate >= 60 && entry.heart_rate <= 80) {
+                            heartRateCell.classList.add('heart-rate-green');
+                        } else {
+                            heartRateCell.classList.add('heart-rate-red');
+                        }
+
+                        row.appendChild(patientIdCell);
+                        row.appendChild(heartRateCell);
+                        row.appendChild(timestampCell);
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error fetching heart rate data:', error));
+        }
+
+        // Fetch data initially and then every 5 seconds
+        fetchAndUpdateData();
+        setInterval(fetchAndUpdateData, 1000);
+    </script>
+</body>
+</html>
